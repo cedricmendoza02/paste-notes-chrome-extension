@@ -39,10 +39,10 @@ module.exports = {
                     loader: 'babel-loader',
                     options: {
                         presets: [
-                            '@babel/preset-env', 
+                            '@babel/preset-env',  
                             '@babel/preset-react',
                             {
-                                'plugins': ['@babel/plugin-proposal-class-properties', '@babel/plugin-syntax-dynamic-import']
+                                'plugins': ['@babel/plugin-proposal-class-properties', '@babel/plugin-syntax-dynamic-import'] // dynamic import seems to have allowed map function on react
                             }
                         ]
                     }
