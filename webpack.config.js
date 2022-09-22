@@ -30,10 +30,32 @@ module.exports = {
         filename: '[name].bundle.js',
         clean: true
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Options Page',
+            filename: 'options.html',
+            chunks: ['options'],
+            template: 'src/options.html'
+        }),
+        new HtmlWebpackPlugin({
+            title: 'Popup Page',
+            filename: 'popup.html',
+            chunks: ['popup'],
+            template: 'src/popup.html'
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'src/manifest.json', to: '[name][ext]' },
+                { from: 'src/background.js', to: '[name][ext].chrome' },
+                { from: 'src/content-script.js', to: '[name][ext].chrome' },
+                { from: 'src/output.css', to: '[name][ext]'}
+            ]
+        })
+    ],
     module: {
         rules: [
             {   
-                test: /\.js$/,
+                test: /.*.js(?!\.chrome$)/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
@@ -57,27 +79,5 @@ module.exports = {
                 ]
             },
         ]
-    },
-    plugins: [
-
-        new HtmlWebpackPlugin({
-            title: 'Options Page',
-            filename: 'options.html',
-            chunks: ['options'],
-            template: 'src/options.html'
-        }),
-        new HtmlWebpackPlugin({
-            title: 'Popup Page',
-            filename: 'popup.html',
-            chunks: ['popup'],
-            template: 'src/popup.html'
-        }),
-        new CopyPlugin({
-            patterns: [
-                { from: 'src/manifest.json', to: '[name][ext]' },
-                { from: 'src/background.js', to: '[name][ext]' },
-                { from: 'src/output.css', to: '[name][ext]'}
-            ]
-        })
-    ]
+    }
 }

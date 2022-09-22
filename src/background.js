@@ -1,8 +1,20 @@
+var parent
+var storage
+
+/* Chrome methods */
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.set({data: [{title: "Hello", contents: "World"}, {title: "Item2", contents: "World"}]}) // data will contain array of objects
+    // Set storage to an array property named data with 1 default list item
+    chrome.storage.sync.set({data: [{title: "First Item", contents: "I hope you find this app useful\nFeel free to delete this note."}]}, async () => {
+        let response = await getData()
+        storage = response.data
+        console.log('storage initialized ', storage)
+    }) // data will contain array of objects
+    // create the parent context menu on install
+    parent = chrome.contextMenus.create({"title": "Paste Notes", "id": "parent", "contexts": ["editable"], "visible": true, "enabled": true}, function() { console.log(chrome.runtime.lastError)})
 })
 
 chrome.runtime.onMessage.addListener(
+    // API
     function(request, sender, sendResponse) {
         let method = request.method
         let data = request.data
@@ -36,6 +48,26 @@ chrome.runtime.onMessage.addListener(
     }
 )
 
+// Recreate the context list when the storage is changed
+chrome.storage.onChanged.addListener((changes) => {
+    storage = changes.data.newValue
+    createContextMenu()
+})
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    console.log("tab", tab)
+    console.log("info", info)
+    chrome.tabs.sendMessage(tab.id, { action: "paste", data: storage[info.menuItemId] }, 
+        (res) => {
+            if(chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError.message)
+                return
+            }
+            console.log(res)
+        })
+})
+
+/* Other methods */
 const post = async (data) => {
     let curData = await getData() // get storage
     curData = [...curData.data, data] // add new data content
@@ -48,6 +80,7 @@ const post = async (data) => {
 const remove = async (data) => {
     let curData = await getData() // get storage
     let index = -1
+    // remove the element matching the data
     curData = curData.data.filter((elem, i) => {
         if(elem.title === data.title) {
             index = i
@@ -68,3 +101,35 @@ const getData = () => {
         chrome.storage.sync.get(null, (res) => resolve(res))
     })
 }
+
+const createContextMenu = async () => {
+  let response = await getData()
+  let data = response.data
+  console.log(data)
+  chrome.contextMenus.removeAll()
+  parent = chrome.contextMenus.create(
+    {
+        "title": "Paste Notes", 
+        "id": "parent", "contexts": ["editable"], 
+        "visible": true, 
+        "enabled": true
+    }, 
+    function() { 
+        if(chrome.runtime.lastError) {
+            console.log(chrome.runtime.lastError)
+        }
+    })
+  
+  if(!data) return // if data undefined, don't create children yet
+  data.forEach((elem, i) => {
+    const props = {
+        title: elem.title,
+        id: `${i}`,
+        parentId: parent,
+        contexts: ["editable"]
+    }
+    chrome.contextMenus.create(props) 
+  })
+}
+
+createContextMenu()

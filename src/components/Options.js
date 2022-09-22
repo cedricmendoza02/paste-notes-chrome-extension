@@ -25,10 +25,10 @@ const Options = () => {
 
   const saveNote = () => {
     if(title === '') {
-      alert("Title cannot be empty")
+      alert('Title cannot be empty')
       return
     }
-    chrome.runtime.sendMessage({method: 'POST', data: {title, contents}}, function(response) { // send message to background script
+    chrome.runtime.sendMessage({'method': 'POST', 'data': {title, contents}}, function(response) { // send message to background script
       console.log(response)
       setList(response.res.data)
     })
@@ -59,7 +59,7 @@ const Options = () => {
 
   return (
     <div className="grid grid-cols-[300px_minmax(500px,_1fr)_100px] gap-3 container mx-auto p-4 shadow-2xl mt-10 max-w-7xl text-2xl">
-      <h1 className="col-span-full text-5xl font-medium m-3">Notes App</h1>
+      <h1 className="col-span-full text-5xl font-medium m-3">Notes</h1>
       <div className="text-lg">
         <NoteList 
           data={list}

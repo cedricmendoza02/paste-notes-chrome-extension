@@ -1,13 +1,21 @@
 {
-    "name": "Getting Started Example",
-    "description": "Build an Extension!",
+    "name": "Paste Notes",
+    "description": "Paste pre-defined notes to input field",
     "version": "1.0",
     "manifest_version": 3,
     "background": {
       "service_worker": "background.js"
     },
-    "options_page": "options.html",
+    "content_scripts": [
+      {
+        "matches": ["https://cbre.service-now.com/*"],
+        "js": ["content-script.js"]
+      }
+    ],
+    "options_page": "options.html", 
     "permissions": [
-      "storage"
+      "storage",
+      "contextMenus",
+      "activeTab"
     ]
   }
