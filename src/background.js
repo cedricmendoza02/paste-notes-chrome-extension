@@ -21,9 +21,9 @@ chrome.runtime.onMessage.addListener(
         console.log(method, data)
         switch(method) {
             case 'POST': {
-                post(data).then(() => {
+                post(data).then((response) => {
+                    console.log(response)
                     chrome.storage.sync.get(null, (res) => { // passing null, retrieves all data
-                        console.log('item saved')
                         sendResponse({message: 'success', res})
                     }) 
                 })
@@ -42,6 +42,8 @@ chrome.runtime.onMessage.addListener(
                         }) 
                     })
                 break
+            } case 'PUT': {
+                put(data)
             }
         }
         return true;
@@ -69,11 +71,29 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 /* Other methods */
 const post = async (data) => {
-    let curData = await getData() // get storage
-    curData = [...curData.data, data] // add new data content
-    chrome.storage.sync.set({data: curData}) // update local storage
+    let response = await getData() // get storage
+    let curData = response.data
+    console.log(curData)
+    let index = curData.findIndex(element => element.title === data.title)
+    if(index === -1) { // If no similar text is found, proceed with adding the note
+        curData = [...curData, data] // add new data content
+        chrome.storage.sync.set({data: curData}) // update local storage
+        return new Promise((resolve, reject) => {
+            resolve('Note saved')
+        })    
+    }
     return new Promise(async (resolve, reject) => {
-        resolve()
+        update(curData, data, index)
+        .then(response => resolve('Existing note found. Note updated.'))
+    })
+    
+}
+
+const update = (curData, newData, index) => {
+    curData[index] = newData
+    chrome.storage.sync.set({data: curData}) // update local storage
+        return new Promise((resolve, reject) => {
+            resolve('Note saved')
     })    
 }
 
