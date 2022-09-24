@@ -8,7 +8,7 @@
     },
     "content_scripts": [
       {
-        "matches": ["https://cbre.service-now.com/*"],
+        "matches": ["<all_urls>"],
         "js": ["content-script.js"]
       }
     ],
@@ -18,4 +18,4 @@
       "contextMenus",
       "activeTab"
     ]
-  }
+}

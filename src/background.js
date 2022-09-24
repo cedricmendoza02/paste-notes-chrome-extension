@@ -1,3 +1,17 @@
+const DEFAULT_NOTES = [{
+        title: "KNOWN_BUGS", 
+        contents: `
+            * Could not exclude background.js and content-script.js from getting minified by webpack
+        `},
+        {
+        title: "WORK_IN_PROGRESS",
+        contents: `
+            * Buttons are placed. To be implemented soon.
+            * Export/Import in JSON format
+        `
+        }
+]
+
 /*********************** START OF OTHER METHODS ***********************/
 
 const post = async (note) => {
@@ -105,7 +119,7 @@ const initializeStorage = (data = []) => {
 chrome.runtime.onInstalled.addListener(async () => {
     // Initialize storage
     try {
-        await initializeStorage()
+        await initializeStorage(DEFAULT_NOTES)
     } catch(e) {
 
     }
