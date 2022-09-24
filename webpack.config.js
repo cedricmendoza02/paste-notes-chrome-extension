@@ -5,6 +5,11 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
     mode: 'production',
     devtool: 'source-map',
+    performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000
+    },
     devServer: { // required by reactJS.
         static: {
             directory: path.resolve(__dirname, 'dist')

@@ -1,16 +1,126 @@
-var parent
-var storage
+/*********************** START OF OTHER METHODS ***********************/
 
-/* Chrome methods */
-chrome.runtime.onInstalled.addListener(() => {
-    // Set storage to an array property named data with 1 default list item
-    chrome.storage.sync.set({data: [{title: "First Item", contents: "I hope you find this app useful\nFeel free to delete this note."}]}, async () => {
-        let response = await getData()
-        storage = response.data
-        console.log('storage initialized ', storage)
-    }) // data will contain array of objects
-    // create the parent context menu on install
-    parent = chrome.contextMenus.create({"title": "Paste Notes", "id": "parent", "contexts": ["editable"], "visible": true, "enabled": true}, function() { console.log(chrome.runtime.lastError)})
+const post = async (note) => {
+    let storage = await getData() // get storage
+    let index = storage.findIndex(element => element.title === note.title)
+    if(index === -1) { // If no similar text is found, proceed with adding the note
+        storage = [...storage, note] // add new data content
+        chrome.storage.sync.set({data: storage}) // update local storage
+        return new Promise((resolve, reject) => {
+            resolve('Note saved')
+        })    
+    }
+    return new Promise(async (resolve, reject) => {
+        update(storage, note, index)
+        .then(response => resolve('Existing note found. Note updated.'))
+    })
+}
+
+const update = (storage, newData, index) => {
+    storage[index] = newData
+    chrome.storage.sync.set({data: storage}) // update local storage
+        return new Promise((resolve, reject) => {
+            resolve('Note saved')
+    })    
+}
+
+const remove = async (note) => {
+    let storage = await getData() // get storage
+    let index = -1
+    // remove the element matching the data
+    let newStorage = storage.filter((elem, i) => {
+        if(elem.title === note.title) {
+            index = i
+            return 
+        }
+        return elem
+    })
+    chrome.storage.sync.set({data: newStorage})
+    return new Promise(async (resolve, reject) => {
+        if(index < 0) reject('Item not found!')
+        resolve()
+    })
+}
+
+const getData = () => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(null, (res) => {
+            if(chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError)
+            }
+            resolve(res.data)
+        })
+    })
+}
+
+const createContextMenu = async (parentId) => {
+    let data
+    try {
+       data  = await getData()
+    } catch(e) {
+        console.log(e)
+    }
+    
+    console.log(`Creating context menu with: ${JSON.stringify(data)}`)
+    chrome.contextMenus.removeAll()
+    let parent = chrome.contextMenus.create(
+      {
+          "title": "Paste Notes", 
+          "id": "parent", 
+          "contexts": ["editable"], 
+          "visible": true, 
+          "enabled": true
+      }, 
+      function() { 
+          if(chrome.runtime.lastError) {
+              console.log(chrome.runtime.lastError)
+          }
+      })
+    
+    if(!data.length) return // if array is empty
+    data.forEach((elem, i) => {
+      const props = {
+          title: elem.title,
+          id: `${i}`,
+          parentId: parent,
+          contexts: ["editable"]
+      }
+      chrome.contextMenus.create(props) 
+    })
+}
+
+const initializeStorage = (data = []) => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.set({data}, () => {
+            if(chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError)
+            }
+            resolve('Note saved')
+        })
+    })
+}
+
+/*********************** START OF CHROME METHODS ***********************/
+// initial state
+chrome.runtime.onInstalled.addListener(async () => {
+    // Initialize storage
+    try {
+        await initializeStorage()
+    } catch(e) {
+
+    }
+    
+    let parentId = chrome.contextMenus.create(
+        {
+            "title": "Paste Notes", 
+            "id": "parent", 
+            "contexts": ["editable"], 
+            "visible": true, 
+            "enabled": true
+        }, () => { 
+            if(chrome.runtime.lastError) console.log(chrome.runtime.lastError)
+    })
+    createContextMenu(parentId)
 })
 
 chrome.runtime.onMessage.addListener(
@@ -18,12 +128,13 @@ chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         let method = request.method
         let data = request.data
-        console.log(method, data)
+
         switch(method) {
             case 'POST': {
                 post(data).then((response) => {
                     console.log(response)
                     chrome.storage.sync.get(null, (res) => { // passing null, retrieves all data
+                        console.log(`POST success: ${res}`)
                         sendResponse({message: 'success', res})
                     }) 
                 })
@@ -52,13 +163,17 @@ chrome.runtime.onMessage.addListener(
 
 // Recreate the context list when the storage is changed
 chrome.storage.onChanged.addListener((changes) => {
-    storage = changes.data.newValue
     createContextMenu()
 })
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-    console.log("tab", tab)
-    console.log("info", info)
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    let storage 
+    try {
+       storage = await getData()
+    } catch(e) {    
+        console.log(e)
+    }
+    
     chrome.tabs.sendMessage(tab.id, { action: "paste", data: storage[info.menuItemId] }, 
         (res) => {
             if(chrome.runtime.lastError) {
@@ -68,88 +183,4 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             console.log(res)
         })
 })
-
-/* Other methods */
-const post = async (data) => {
-    let response = await getData() // get storage
-    let curData = response.data
-    console.log(curData)
-    let index = curData.findIndex(element => element.title === data.title)
-    if(index === -1) { // If no similar text is found, proceed with adding the note
-        curData = [...curData, data] // add new data content
-        chrome.storage.sync.set({data: curData}) // update local storage
-        return new Promise((resolve, reject) => {
-            resolve('Note saved')
-        })    
-    }
-    return new Promise(async (resolve, reject) => {
-        update(curData, data, index)
-        .then(response => resolve('Existing note found. Note updated.'))
-    })
-    
-}
-
-const update = (curData, newData, index) => {
-    curData[index] = newData
-    chrome.storage.sync.set({data: curData}) // update local storage
-        return new Promise((resolve, reject) => {
-            resolve('Note saved')
-    })    
-}
-
-const remove = async (data) => {
-    let curData = await getData() // get storage
-    let index = -1
-    // remove the element matching the data
-    curData = curData.data.filter((elem, i) => {
-        if(elem.title === data.title) {
-            index = i
-            return 
-        }
-        return elem
-    })
-    chrome.storage.sync.set({data: curData})
-    return new Promise(async (resolve, reject) => {
-        if(index < 0) reject('Item not found!')
-        resolve()
-    })
-}
-
-// returns data in format {data: [...]}
-const getData = () => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.get(null, (res) => resolve(res))
-    })
-}
-
-const createContextMenu = async () => {
-  let response = await getData()
-  let data = response.data
-  console.log(data)
-  chrome.contextMenus.removeAll()
-  parent = chrome.contextMenus.create(
-    {
-        "title": "Paste Notes", 
-        "id": "parent", "contexts": ["editable"], 
-        "visible": true, 
-        "enabled": true
-    }, 
-    function() { 
-        if(chrome.runtime.lastError) {
-            console.log(chrome.runtime.lastError)
-        }
-    })
-  
-  if(!data) return // if data undefined, don't create children yet
-  data.forEach((elem, i) => {
-    const props = {
-        title: elem.title,
-        id: `${i}`,
-        parentId: parent,
-        contexts: ["editable"]
-    }
-    chrome.contextMenus.create(props) 
-  })
-}
-
-createContextMenu()
+/*********************** END OF CHROME METHODS ***********************/

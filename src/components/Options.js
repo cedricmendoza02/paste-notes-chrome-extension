@@ -12,12 +12,24 @@ const Options = () => {
   const [title, setTitle] = useState('')
   const [contents, setContents] = useState('')
   const [list, setList] = useState([])
+  const [searchIndex, setSearchIndex] = useState(-1)
 
   useEffect(async () => {
     const response = await getData()
     console.log(response.data)
     setList(response.data)
   }, [])
+
+  useEffect(() => {
+    setSearchIndex(list.findIndex((elem) => elem.title === title))
+  }, [title])
+
+  useEffect(() => {
+    if(list.length === 0) return
+    if(searchIndex < 0) return
+    setTitle(list[searchIndex].title)
+    setContents(list[searchIndex].contents)
+  }, [searchIndex])
 
   const handleChange = (e, update) => {
     update(e.target.value)
@@ -59,9 +71,10 @@ const Options = () => {
 
   return (
     <div className="grid grid-cols-[300px_minmax(500px,_1fr)_100px] gap-3 container mx-auto p-4 shadow-2xl mt-10 max-w-7xl text-2xl">
-      <h1 className="col-span-full text-5xl font-medium m-3">Notes</h1>
+      <h1 className="col-span-full text-5xl font-medium m-3">Paste Notes</h1>
       <div className="text-lg">
         <NoteList 
+          selected={searchIndex}
           data={list}
           setSelected={selectItem}/>
       </div>
@@ -92,8 +105,8 @@ const Options = () => {
 }
 
 const styles = {
-  saveBtn: "m-1 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
-  removeBtn: "m-1 inline-flex justify-center rounded-md border border-transparent bg-red-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+  saveBtn: "bg-gray-100 m-1 p-1 inline-flex justify-center rounded-md border-b-4 border-indigo-500 text-sm font-medium hover:bg-indigo-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-100 ease-out hover:ease-in",
+  removeBtn: "bg-gray-100 m-1 p-1 inline-flex justify-center rounded-md border-b-4 border-red-500 text-sm font-medium hover:bg-red-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-100 ease-out hover:ease-in"
 }
 
 export default Options
