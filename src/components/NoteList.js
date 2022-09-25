@@ -1,7 +1,7 @@
 import React from 'react'
 import ListItem from './ListItem'
 
-const NoteList = ({data, setSelected, selected}) => {
+const NoteList = ({data, setSelected, selected, moveUp, moveDown}) => {
   const handleClick = (evt, elem) => {
     setSelected(elem)
   }
@@ -19,9 +19,11 @@ const NoteList = ({data, setSelected, selected}) => {
       </ul>
       <div className="grid grid-cols-2">
         <button   
-        className="bg-gray-100 m-1 p-1 inline-flex justify-center rounded-md border-b-4 border-indigo-500 hover:bg-indigo-500 transition duration-100 ease out hover:ease-in hover:text-white">
+          onClick={moveUp}
+          className="bg-gray-100 m-1 p-1 inline-flex justify-center rounded-md border-b-4 border-indigo-500 hover:bg-indigo-500 transition duration-100 ease out hover:ease-in hover:text-white">
           Move up</button>
         <button 
+          onClick={moveDown}
           className="bg-gray-100 m-1 p-1 inline-flex justify-center rounded-md border-t-4 border-indigo-500 hover:bg-indigo-500 transition duration-100 ease out hover:ease-in hover:text-white">
             Move Down</button>
       </div>

@@ -32,6 +32,22 @@ const Options = () => {
     setContents(list[searchIndex].contents)
   }, [searchIndex])
 
+  const moveUp = () => {
+    chrome.runtime.sendMessage({method: 'move-up', data: searchIndex}, response => {
+      console.log(response)
+      setSearchIndex(response.newIndex)
+      setList(response.res.data)
+    })
+  }
+
+  const moveDown = () => {
+    chrome.runtime.sendMessage({method: 'move-down', data: searchIndex}, response => {
+      console.log(response)
+      setSearchIndex(response.newIndex)
+      setList(response.res.data)
+    })
+  }
+
   const handleChange = (e, update) => {
     update(e.target.value)
   }
@@ -76,6 +92,8 @@ const Options = () => {
       <h1 className="col-span-full text-5xl font-medium m-3">Paste Notes</h1>
       <div className="text-lg">
         <NoteList 
+          moveUp={moveUp}
+          moveDown={moveDown}
           selected={searchIndex}
           data={list}
           setSelected={selectItem}/>

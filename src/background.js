@@ -9,6 +9,12 @@ const DEFAULT_NOTES = [{
             * Buttons are placed. To be implemented soon.
             * Export/Import in JSON format
         `
+        },
+        {
+        title: "Item 3",
+        contents: `
+            Item 3
+        `
         }
 ]
 
@@ -53,6 +59,36 @@ const remove = async (note) => {
     return new Promise(async (resolve, reject) => {
         if(index < 0) reject('Item not found!')
         resolve()
+    })
+}
+
+const moveItemUp = async (index) => {
+    let data = await getData()
+    let newIndex = index
+    return new Promise((resolve, reject) => {
+        if(!index) return reject('Item is already at the top.')
+        let temp = data[index - 1] // get item before
+        data[index - 1] = data[index]
+        data[index] = temp;
+        chrome.storage.sync.set({data: data}, () => {
+            newIndex = index - 1
+            resolve(newIndex)
+        })
+    })
+}
+
+const moveItemDown = async (index) => {
+    let data = await getData()
+    let newIndex = index
+    return new Promise((resolve, reject) => {
+        if(index === data.length - 1) return reject('Item is already at the bottom.')
+        let temp = data[index + 1] // get item after
+        data[index + 1] = data[index]
+        data[index] = temp;
+        chrome.storage.sync.set({data: data}, () => {
+            newIndex = index + 1
+            resolve(newIndex)
+        })
     })
 }
 
@@ -167,8 +203,21 @@ chrome.runtime.onMessage.addListener(
                         }) 
                     })
                 break
-            } case 'PUT': {
-                put(data)
+            } 
+            case 'move-up': {
+                moveItemUp(data).then(response => {
+                    chrome.storage.sync.get(null, (res) => { // passing null, retrieves all data
+                        sendResponse({message: 'success', res, newIndex: response})
+                    }) 
+                }).catch(err => console.log(err))
+                break
+            }
+            case 'move-down': {
+                moveItemDown(data).then(response => {
+                    chrome.storage.sync.get(null, (res) => { // passing null, retrieves all data
+                        sendResponse({message: 'success', res, newIndex: response})
+                    }) 
+                }).catch(err => console.log(err))
             }
         }
         return true;
@@ -177,6 +226,12 @@ chrome.runtime.onMessage.addListener(
 
 // Recreate the context list when the storage is changed
 chrome.storage.onChanged.addListener((changes) => {
+    // let newValue = changes.data.newValue
+    // chrome.runtime.sendMessage({method: "UPDATE", newValue}, () => {
+    //     if(chrome.runtime.lastError) {
+    //         console.log(chrome.runtime.lastError)
+    //     }
+    // })
     createContextMenu()
 })
 
