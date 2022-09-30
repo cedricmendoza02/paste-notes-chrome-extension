@@ -1,23 +1,3 @@
-const DEFAULT_NOTES = [{
-        title: "KNOWN_BUGS", 
-        contents: `
-            * Could not exclude background.js and content-script.js from getting minified by webpack
-        `},
-        {
-        title: "WORK_IN_PROGRESS",
-        contents: `
-            * Buttons are placed. To be implemented soon.
-            * Export/Import in JSON format
-        `
-        },
-        {
-        title: "Item 3",
-        contents: `
-            Item 3
-        `
-        }
-]
-
 /*********************** START OF OTHER METHODS ***********************/
 
 const post = async (note) => {
@@ -98,7 +78,11 @@ const getData = () => {
             if(chrome.runtime.lastError) {
                 return reject(chrome.runtime.lastError)
             }
-            resolve(res.data)
+            if(!res.data) {
+                resolve([])
+            } else {
+                resolve(res.data)
+            }
         })
     })
 }
@@ -139,27 +123,9 @@ const createContextMenu = async (parentId) => {
     })
 }
 
-const initializeStorage = (data = []) => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.sync.set({data}, () => {
-            if(chrome.runtime.lastError) {
-                return reject(chrome.runtime.lastError)
-            }
-            resolve('Note saved')
-        })
-    })
-}
-
 /*********************** START OF CHROME METHODS ***********************/
 // initial state
 chrome.runtime.onInstalled.addListener(async () => {
-    // Initialize storage
-    try {
-        await initializeStorage(DEFAULT_NOTES)
-    } catch(e) {
-
-    }
-    
     let parentId = chrome.contextMenus.create(
         {
             "title": "Paste Notes", 
@@ -226,12 +192,6 @@ chrome.runtime.onMessage.addListener(
 
 // Recreate the context list when the storage is changed
 chrome.storage.onChanged.addListener((changes) => {
-    // let newValue = changes.data.newValue
-    // chrome.runtime.sendMessage({method: "UPDATE", newValue}, () => {
-    //     if(chrome.runtime.lastError) {
-    //         console.log(chrome.runtime.lastError)
-    //     }
-    // })
     createContextMenu()
 })
 

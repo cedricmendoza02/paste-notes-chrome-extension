@@ -5,7 +5,16 @@ import Navigation from './Navigation';
 
 const getData = () => {
   return new Promise((resolve, reject) => {
-      chrome.storage.sync.get(null, (res) => resolve(res))
+      chrome.storage.sync.get(null, (res) => {
+          if(chrome.runtime.lastError) {
+              return reject(chrome.runtime.lastError)
+          }
+          if(!res.data) {
+              resolve([])
+          } else {
+              resolve(res.data)
+          }
+      })
   })
 }
 
@@ -17,8 +26,7 @@ const Options = () => {
 
   useEffect(async () => {
     const response = await getData()
-    console.log(response.data)
-    setList(response.data)
+    setList(response)
   }, [])
 
   useEffect(() => {
