@@ -1,2 +1,2 @@
-export { default as Options } from './Options';
+export { default as App } from './App';
 export { default as Popup } from './Popup';

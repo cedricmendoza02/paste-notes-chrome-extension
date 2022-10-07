@@ -1,13 +1,21 @@
 import React from 'react'
 
-const Navigation = () => {
+const Navigation = ({handleClick}) => {
   return (
-    <nav className="col-span-full flex space-x-4">
-        <a href="#" className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">About</a>
-        <a href="#" className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Import/Export</a>
-        <a href="#" className="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Contact</a>
-    </nav>
+    <div className="flex justify-around my-4">
+      <h1 className="text-4xl">Paste Notes</h1>
+      <ul onClick={(e) => handleClick(e)} className="flex">
+          <li className={styles.buttons}>Home</li>
+          <li className={styles.buttons}>Import/Export</li>
+          <li className={styles.buttons}>About</li>
+          <li className={styles.buttons}>Contact</li>
+      </ul>
+    </div>
   )
+}
+
+const styles = {
+  buttons: "px-3 py-2 rounded-md text-sm font-medium cursor-pointer hover:bg-gray-900 hover:text-white active:bg-gray-700"
 }
 
 export default Navigation

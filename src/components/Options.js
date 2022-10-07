@@ -1,33 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import Label from './Label';
 import NoteList from './NoteList';
-import Navigation from './Navigation';
-
-const getData = () => {
-  return new Promise((resolve, reject) => {
-      chrome.storage.sync.get(null, (res) => {
-          if(chrome.runtime.lastError) {
-              return reject(chrome.runtime.lastError)
-          }
-          if(!res.data) {
-              resolve([])
-          } else {
-              resolve(res.data)
-          }
-      })
-  })
-}
 
 const Options = () => {
   const [title, setTitle] = useState('')
   const [contents, setContents] = useState('')
-  const [list, setList] = useState([])
+  const [list, setList] = useState([{title: "Hello", contents: "Caleb"}])
   const [searchIndex, setSearchIndex] = useState(-1)
 
-  useEffect(async () => {
-    const response = await getData()
-    setList(response)
-  }, [])
+  // useEffect(() => {
+  //   chrome.storage.sync.get(null, res => {
+  //     if(!res.data) {
+  //       setList([])
+  //     } else {
+  //       setList(res.data)
+  //     }
+  //   })
+  // }, [])
 
   useEffect(() => {
     setSearchIndex(list.findIndex((elem) => elem.title === title))
@@ -95,17 +84,13 @@ const Options = () => {
   }
 
   return (
-    <div className="grid grid-cols-[300px_minmax(500px,_1fr)_100px] gap-3 container mx-auto p-4 shadow-2xl mt-10 max-w-7xl text-2xl">
-      <Navigation />
-      <h1 className="col-span-full text-5xl font-medium m-3">Paste Notes</h1>
-      <div className="text-lg">
-        <NoteList 
-          moveUp={moveUp}
-          moveDown={moveDown}
-          selected={searchIndex}
-          data={list}
-          setSelected={selectItem}/>
-      </div>
+    <div className="grid grid-cols-2 gap-5">
+      <NoteList 
+        moveUp={moveUp}
+        moveDown={moveDown}
+        setSelected={selectItem}
+        selected={searchIndex}
+        data={list} />
       <form className="flex flex-col">
         <Label name="title" />
           <input 

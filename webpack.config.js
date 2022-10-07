@@ -2,8 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 
+
+console.log("PATH: ", path.resolve(__dirname, 'src'))
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     devtool: 'source-map',
     performance: {
         hints: false,
@@ -21,47 +23,19 @@ module.exports = {
         historyApiFallback: true
     },
     entry: {
-        options: {
-            publicPath: path.resolve(__dirname, '/src/options.js'),
-            import: './src/options.js'
-        },
-        popup: {    
-            publicPath: path.resolve(__dirname, '/src/popup.js'),
-            import: './src/popup.js'
-        }
+        options: path.resolve(__dirname, 'src/options.js'),
+        popup: path.resolve(__dirname, 'src/popup.js')
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js',
         clean: true
     },
-    plugins: [
-        new HtmlWebpackPlugin({
-            title: 'Options Page',
-            filename: 'options.html',
-            chunks: ['options'],
-            template: 'src/options.html'
-        }),
-        new HtmlWebpackPlugin({
-            title: 'Popup Page',
-            filename: 'popup.html',
-            chunks: ['popup'],
-            template: 'src/popup.html'
-        }),
-        new CopyPlugin({
-            patterns: [
-                { from: 'src/manifest.json', to: '[name][ext]' },
-                { from: 'src/background.js', to: '[name][ext].chrome' },
-                { from: 'src/content-script.js', to: '[name][ext].chrome' },
-                { from: 'src/output.css', to: '[name][ext]'}
-            ]
-        })
-    ],
     module: {
         rules: [
             {   
                 test: /\.js$/,
-                exclude: /node_modules/,
+                exclude: [path.resolve(__dirname, 'src/chrome_scripts'), path.resolve(__dirname, 'node_modules')],
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -84,5 +58,27 @@ module.exports = {
                 ]
             },
         ]
-    }
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            title: 'Options Page',
+            filename: 'options.html',
+            chunks: ['options'],
+            template: 'src/options.html'
+        }),
+        new HtmlWebpackPlugin({
+            title: 'Popup Page',
+            filename: 'popup.html',
+            chunks: ['popup'],
+            template: 'src/popup.html'
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'src/manifest.json', to: '[name][ext]' },
+                { from: 'src/chrome_scripts/background.js', to: '[name][ext]' },
+                { from: 'src/chrome_scripts/content-script.js', to: '[name][ext]' },
+                { from: 'src/output.css', to: '[name][ext]'}
+            ]
+        })
+    ],
 }
