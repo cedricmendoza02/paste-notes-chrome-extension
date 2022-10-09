@@ -38,6 +38,7 @@ const App = () => {
   return (
     <Card>
       <Navigation 
+        pages={pages}
         handleClick={changePage}/>
       {pages[page]}
     </Card>
