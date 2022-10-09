@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Label from './Label';
 import NoteList from './NoteList';
 
-const Options = ({list}) => {
+const Options = ({list, setList}) => {
   const [title, setTitle] = useState('')
   const [contents, setContents] = useState('')
   const [searchIndex, setSearchIndex] = useState(-1)
