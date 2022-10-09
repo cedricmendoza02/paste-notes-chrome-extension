@@ -1,14 +1,12 @@
 import React from 'react'
 
-const Navigation = ({handleClick}) => {
+const Navigation = ({handleClick, pages}) => {
+
   return (
     <div className="flex justify-around my-4">
       <h1 className="text-4xl">Paste Notes</h1>
       <ul onClick={(e) => handleClick(e)} className="flex">
-          <li className={styles.buttons}>Home</li>
-          <li className={styles.buttons}>Import/Export</li>
-          <li className={styles.buttons}>About</li>
-          <li className={styles.buttons}>Contact</li>
+          {Object.keys(pages).map((elem, i) => <li key={i} className={styles.buttons}>{elem}</li>)}
       </ul>
     </div>
   )
