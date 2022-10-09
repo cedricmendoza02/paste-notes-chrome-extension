@@ -3,9 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 
 
-console.log("PATH: ", path.resolve(__dirname, 'src'))
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     devtool: 'source-map',
     performance: {
         hints: false,
