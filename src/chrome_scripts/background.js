@@ -184,6 +184,21 @@ chrome.runtime.onMessage.addListener(
                         sendResponse({message: 'success', res, newIndex: response})
                     }) 
                 }).catch(err => console.log(err))
+                break
+            }
+            case 'download': {
+                chrome.downloads.download({
+                    saveAs: true,
+                    filename: "notes.json",
+                    url: data
+                })
+                break
+            }
+            case 'upload': {
+                chrome.storage.sync.set(JSON.parse(data), res => {
+                    sendResponse({message: 'list updated'})
+                })
+                break;
             }
         }
         return true;
@@ -193,6 +208,7 @@ chrome.runtime.onMessage.addListener(
 // Recreate the context list when the storage is changed
 chrome.storage.onChanged.addListener((changes) => {
     createContextMenu()
+    chrome.runtime.sendMessage({method: "update-display", changes})
 })
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {

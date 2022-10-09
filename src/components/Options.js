@@ -5,18 +5,22 @@ import NoteList from './NoteList';
 const Options = () => {
   const [title, setTitle] = useState('')
   const [contents, setContents] = useState('')
-  const [list, setList] = useState([{title: "Hello", contents: "Caleb"}])
+  const [list, setList] = useState([])
   const [searchIndex, setSearchIndex] = useState(-1)
 
-  // useEffect(() => {
-  //   chrome.storage.sync.get(null, res => {
-  //     if(!res.data) {
-  //       setList([])
-  //     } else {
-  //       setList(res.data)
-  //     }
-  //   })
-  // }, [])
+  chrome.runtime.onMessage.addListener((message) => {
+    if(message == 'update-display') console.log(message)
+  })
+
+  useEffect(() => {
+    chrome.storage.sync.get(null, res => {
+      if(!res.data) {
+        setList([])
+      } else {
+        setList(res.data)
+      }
+    })
+  }, [])
 
   useEffect(() => {
     setSearchIndex(list.findIndex((elem) => elem.title === title))
@@ -25,7 +29,7 @@ const Options = () => {
   useEffect(() => {
     if(list.length === 0) return
     if(searchIndex < 0) return
-    setTitle(list[searchIndex].title)
+    setTitle(list[searchIndex].title) 
     setContents(list[searchIndex].contents)
   }, [searchIndex])
 

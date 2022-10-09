@@ -1,9 +1,8 @@
 import React from 'react';
-import Card from './Card';
 
 const About = () => {
   return (
-    <div className="flex flex-col items-center justify-start rounded-sm mx-auto w-1/2 shadow-md h-5/6">
+    <div className="flex flex-col items-center justify-start rounded-sm mx-auto w-1/2 shadow-md h-max">
       <h2 className="text-3xl m-5">About</h2>
       <p className="text-center w-1/2">
         If you work on a technical support or customer service function,
