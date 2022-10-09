@@ -1,6 +1,6 @@
 import React, {useRef} from 'react'
 
-const ImportExport = () => {
+const ImportExport = ({list, updateList}) => {
   const uploadValue = useRef()
 
   const download = () => {
@@ -16,8 +16,12 @@ const ImportExport = () => {
   const upload = async () => {
     let bb = new Blob([uploadValue.current.files[0]], {type: "application/json"})
     let contents = await bb.text()
+    contents = JSON.parse(contents)
     chrome.runtime.sendMessage({method: 'upload', data: contents}, (res) => {
-      console.log(res)
+      console.log(res.message)
+      console.log(contents)
+      updateList(contents.data)
+      uploadValue.current.value = ''
     })
   }
 
@@ -26,12 +30,13 @@ const ImportExport = () => {
       <h2 className="text-3xl m-5">Import/Export</h2>
       <form>
         <label htmlFor="import" className={styles.button}>Import</label>
-        <input onChange={upload} ref={uploadValue} type="file" accept="application/json" id="import" />
+        <input style={{display: "none"}} onChange={upload} ref={uploadValue} type="file" accept="application/json" id="import" />
         <button onClick={download}className={styles.button}>Export</button>
       </form>
       
       <h3 className="text-2xl m-3">Note:</h3>
       <p className="text-center w-1/2">This exports the data to .JSON file which can then be used to import back to chrome storage</p>
+      <p className="text-center w-1/2 my-3">Note: Make sure to back up your notes. Chrome updates could cause unknown bugs. Use the import/export feature.</p>
     </div>
   )
 }

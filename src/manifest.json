@@ -1,6 +1,6 @@
 {
     "name": "Paste Notes",
-    "description": "Paste pre-defined notes to input field",
+    "description": "Paste pre-defined notes to input fields",
     "version": "1.0",
     "manifest_version": 3,
     "background": {

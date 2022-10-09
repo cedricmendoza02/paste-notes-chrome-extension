@@ -195,7 +195,7 @@ chrome.runtime.onMessage.addListener(
                 break
             }
             case 'upload': {
-                chrome.storage.sync.set(JSON.parse(data), res => {
+                chrome.storage.sync.set(data, res => {
                     sendResponse({message: 'list updated'})
                 })
                 break;
@@ -208,7 +208,6 @@ chrome.runtime.onMessage.addListener(
 // Recreate the context list when the storage is changed
 chrome.storage.onChanged.addListener((changes) => {
     createContextMenu()
-    chrome.runtime.sendMessage({method: "update-display", changes})
 })
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {

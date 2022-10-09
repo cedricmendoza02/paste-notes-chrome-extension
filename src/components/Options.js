@@ -2,25 +2,10 @@ import React, { useEffect, useState } from 'react'
 import Label from './Label';
 import NoteList from './NoteList';
 
-const Options = () => {
+const Options = ({list}) => {
   const [title, setTitle] = useState('')
   const [contents, setContents] = useState('')
-  const [list, setList] = useState([])
   const [searchIndex, setSearchIndex] = useState(-1)
-
-  chrome.runtime.onMessage.addListener((message) => {
-    if(message == 'update-display') console.log(message)
-  })
-
-  useEffect(() => {
-    chrome.storage.sync.get(null, res => {
-      if(!res.data) {
-        setList([])
-      } else {
-        setList(res.data)
-      }
-    })
-  }, [])
 
   useEffect(() => {
     setSearchIndex(list.findIndex((elem) => elem.title === title))
@@ -117,6 +102,7 @@ const Options = () => {
           <button className={styles.saveBtn} onClick={saveNote}>Save</button>
           <button className={styles.removeBtn} onClick={removeNote}>Remove</button>
       </form>
+      <p className="col-span-3">Note: Make sure to back up your notes. Chrome updates could cause unknown bugs. Use the import/export feature.</p>
     </div>
   )
 }

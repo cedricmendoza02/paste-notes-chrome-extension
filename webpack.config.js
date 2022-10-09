@@ -5,7 +5,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 console.log("PATH: ", path.resolve(__dirname, 'src'))
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     devtool: 'source-map',
     performance: {
         hints: false,

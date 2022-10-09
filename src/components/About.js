@@ -2,7 +2,7 @@ import React from 'react';
 
 const About = () => {
   return (
-    <div className="flex flex-col items-center justify-start rounded-sm mx-auto w-1/2 shadow-md h-max">
+    <div className="flex flex-col items-center justify-start rounded-sm mx-auto w-1/2">
       <h2 className="text-3xl m-5">About</h2>
       <p className="text-center w-1/2">
         If you work on a technical support or customer service function,
@@ -15,11 +15,9 @@ const About = () => {
         This has helped me a lot in easing documenting transactions and I hope this helps you too.
         <br />
         <br />
-        Due to the inflation, I hope you wouldn't mind me asking for a bit of donation.<br />
-        I created this app out of my free time and plan to pursue my career in web and mobile development.<br />
-        This would help me a lot in pursuing this endeavor.
-      </p>
-      <button className={styles.button}>Donate</button>
+        This uses chrome storage sync which gets synced to your account but I haven't tested out that feature yet.
+        Meanwhile, if you need to backup your notes, make use of the export function.
+        </p>
     </div>
   )
 }
